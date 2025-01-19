@@ -36,6 +36,99 @@ namespace Maask.UI
             }
         }
 
+        // ReSharper disable once InconsistentNaming
+        public bool unified
+        {
+            get => _unified;
+            set
+            {
+                _unified = value;
+                UpdateMaterial();
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public float topLeftRadius
+        {
+            get => _tlRadius;
+            set
+            {
+                _tlRadius = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+        
+        // ReSharper disable once InconsistentNaming
+        public float topRightRadius
+        {
+            get => _trRadius;
+            set
+            {
+                _trRadius = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+        
+        // ReSharper disable once InconsistentNaming
+        public float bottomLeftRadius
+        {
+            get => _blRadius;
+            set
+            {
+                _blRadius = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+        
+        // ReSharper disable once InconsistentNaming
+        public float bottomRightRadius
+        {
+            get => _brRadius;
+            set
+            {
+                _brRadius = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public float stroke
+        {
+            get => _stroke;
+            set
+            {
+                _stroke = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public float softness
+        {
+            get => _softness;
+            set
+            {
+                _softness = value;
+                ClampAndUpdateMaterial();
+            }
+        }
+
+        public void SetAllRadii(float radius)
+        {
+            _tlRadius = radius;
+            _trRadius = radius;
+            _blRadius = radius;
+            _brRadius = radius;
+
+            ClampAndUpdateMaterial();
+        }
+
+        private void ClampAndUpdateMaterial()
+        {
+            ClampValues();
+            UpdateMaterial();
+        }
+        
         protected override void UpdateMaterial()
         {
             base.UpdateMaterial();
@@ -66,7 +159,11 @@ namespace Maask.UI
         protected override void OnValidate()
         {
             base.OnValidate();
-            
+            ClampValues();
+        }
+
+        private void ClampValues()
+        {
             var rect = rectTransform.rect;
             var max = Mathf.Min(rect.width, rect.height);
             var halfMax = max / 2.0f;
