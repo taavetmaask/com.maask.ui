@@ -187,13 +187,7 @@ namespace Maask.UI
 
             ClampAndUpdateMaterial();
         }
-
-        protected override void Start()
-        {
-            base.Start();
-            UpdateMaterial();
-        }
-
+        
         private void ClampAndUpdateMaterial()
         {
             ValidateValues();
@@ -221,15 +215,15 @@ namespace Maask.UI
                 ? Vector4.one * _tlRadius 
                 : new Vector4(_blRadius, _tlRadius, _brRadius, _trRadius);
          
-            material.SetVector(CORNERS, corners);
-            material.SetFloat(SOFTNESS, _softness);
-            material.SetColor(TINT, _tint);
-            material.SetFloat(STROKE, _outline ? _outlineSize : _stroke);
-            material.SetColor(COLOR, color);
-            material.SetVector(SIZE, size);
-            material.SetFloat(OUTLINE, _outline ? 1.0f : 0.0f);
-            material.SetColor(OUTLINE_COLOR, _outlineColor);
-            material.SetTexture(OUTLINE_TEXTURE, _outlineSprite != null ? _outlineSprite.texture : null);
+            materialForRendering.SetVector(CORNERS, corners);
+            materialForRendering.SetFloat(SOFTNESS, _softness);
+            materialForRendering.SetColor(TINT, _tint);
+            materialForRendering.SetFloat(STROKE, _outline ? _outlineSize : _stroke);
+            materialForRendering.SetColor(COLOR, color);
+            materialForRendering.SetVector(SIZE, size);
+            materialForRendering.SetFloat(OUTLINE, _outline ? 1.0f : 0.0f);
+            materialForRendering.SetColor(OUTLINE_COLOR, _outlineColor);
+            materialForRendering.SetTexture(OUTLINE_TEXTURE, _outlineSprite != null ? _outlineSprite.texture : null);
         }
 
         protected override void OnValidate()
