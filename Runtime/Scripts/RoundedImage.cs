@@ -237,6 +237,9 @@ namespace Maask.UI
         private void ValidateValues()
         {
             var rect = rectTransform.rect;
+            
+            if (rect.width < 0.001f || rect.height < 0.001f) return;
+            
             var max = Mathf.Min(rect.width, rect.height);
             var halfMax = max / 2.0f;
 
