@@ -190,7 +190,7 @@ namespace Maask.UI
 
         private void ClampAndUpdateMaterial()
         {
-            ClampValues();
+            ValidateValues();
             UpdateMaterial();
         }
         
@@ -231,10 +231,10 @@ namespace Maask.UI
         protected override void OnValidate()
         {
             base.OnValidate();
-            ClampValues();
+            ValidateValues();
         }
 
-        private void ClampValues()
+        private void ValidateValues()
         {
             var rect = rectTransform.rect;
             var max = Mathf.Min(rect.width, rect.height);

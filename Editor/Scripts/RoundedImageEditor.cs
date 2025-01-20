@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
 using UnityEditor.UI;
@@ -34,7 +35,7 @@ namespace Maask.UI.Editor
         private Texture2D _radiusTrIcon;
         private Texture2D _radiusBlIcon;
         private Texture2D _radiusBrIcon;
-        
+
         [MenuItem("GameObject/UI/Rounded Image")]
         private static void AddRoundedImage(MenuCommand menuCommand)
         {
@@ -89,9 +90,18 @@ namespace Maask.UI.Editor
             serializedObject.Update();
             
             RadiusGUI();
+            
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = _outline.hasMultipleDifferentValues;
+            
+            _outlineGroup.target = EditorGUILayout.ToggleLeft("Enable Outline", _outlineGroup.target) || _outline.hasMultipleDifferentValues;
 
-            _outlineGroup.target = EditorGUILayout.ToggleLeft("Enable Outline", _outlineGroup.target);
-            _outline.boolValue = _outlineGroup.target;
+            if (EditorGUI.EndChangeCheck())
+            {
+                _outline.boolValue = _outlineGroup.target;
+            }
+
+            EditorGUI.showMixedValue = false;
 
             EditorGUILayout.BeginFadeGroup(_outlineGroup.faded);
 
@@ -117,15 +127,13 @@ namespace Maask.UI.Editor
             EditorGUILayout.PropertyField(_sprite, _spriteContent);
             EditorGUILayout.PropertyField(_tint, _tintContent);
             EditorGUILayout.PropertyField(_material);
-            
+
             serializedObject.ApplyModifiedProperties();
         }
 
         private void RadiusGUI()
-        {
-            _unified.boolValue = EditorGUILayout.ToggleLeft("Unified Corner Radius", _unified.boolValue);
-            
-            EditorGUILayout.Space(2.0f);
+        {            
+            UnifiedHeaderGUI();
 
             var unified = _unified.boolValue || _unified.hasMultipleDifferentValues;
             
@@ -140,6 +148,22 @@ namespace Maask.UI.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(6);
+        }
+
+        private void UnifiedHeaderGUI()
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = _unified.hasMultipleDifferentValues;
+            
+            var newUnified = EditorGUILayout.ToggleLeft("Unified Corner Radius", _unified.boolValue);
+            
+            if (EditorGUI.EndChangeCheck())
+            {
+                _unified.boolValue = newUnified;
+            }
+            
+            EditorGUI.showMixedValue = false;
+            EditorGUILayout.Space(2.0f);
         }
 
         private void TopLeftRadiusGUI()
