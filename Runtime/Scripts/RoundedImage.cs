@@ -210,8 +210,6 @@ namespace Maask.UI
         {
             var rect = rectTransform.rect;
             var size = new Vector2(rect.width, rect.height);
-
-            if (size.magnitude < 0.001f) return;
             
             var corners = _unified 
                 ? Vector4.one * _tlRadius 
