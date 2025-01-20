@@ -188,6 +188,12 @@ namespace Maask.UI
             ClampAndUpdateMaterial();
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            UpdateMaterial();
+        }
+
         private void ClampAndUpdateMaterial()
         {
             ValidateValues();
