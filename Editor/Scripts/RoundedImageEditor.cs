@@ -65,9 +65,9 @@ namespace Maask.UI.Editor
             _outlineSize = serializedObject.FindProperty("_outlineSize");
             _outlineColor = serializedObject.FindProperty("_outlineColor");
             _outlineSprite = serializedObject.FindProperty("_outlineSprite");
-            _outlineGroup = new AnimBool(true);
+            
+            _outlineGroup = new AnimBool(true) { target = _outline.boolValue, value = _outline.boolValue };
             _outlineGroup.valueChanged.AddListener(Repaint);
-            _outlineGroup.target = _outline.boolValue;
             
             _spriteContent = EditorGUIUtility.TrTextContent("Source Image");
             _tintContent = EditorGUIUtility.TrTextContent("Source Color");

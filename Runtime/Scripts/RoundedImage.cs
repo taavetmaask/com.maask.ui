@@ -22,7 +22,7 @@ namespace Maask.UI
         [SerializeField] private float _brRadius;
 
         [SerializeField] private Color _tint = Color.white;
-        [SerializeField] private bool _unified;
+        [SerializeField] private bool _unified = true;
         [SerializeField] private float _softness = 0.5f;
         [SerializeField] private float _stroke;
         
