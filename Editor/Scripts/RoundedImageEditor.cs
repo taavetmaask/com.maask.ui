@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.AnimatedValues;
 using UnityEditor.UI;
 using UnityEngine;
 
@@ -14,11 +15,20 @@ namespace Maask.UI.Editor
         private SerializedProperty _br;
      
         private SerializedProperty _unified;
+        private SerializedProperty _stroke;
         private SerializedProperty _softness;
         private SerializedProperty _sprite;
-        private SerializedProperty _stroke;
+        private SerializedProperty _tint;
+        private SerializedProperty _material;
+        
+        private SerializedProperty _outline;
+        private SerializedProperty _outlineSize;
+        private SerializedProperty _outlineColor;
+        private SerializedProperty _outlineSprite;
+        private AnimBool _outlineGroup;
         
         private GUIContent _spriteContent;
+        private GUIContent _tintContent;
 
         private Texture2D _radiusTlIcon;
         private Texture2D _radiusTrIcon;
@@ -45,16 +55,33 @@ namespace Maask.UI.Editor
             _br = serializedObject.FindProperty("_brRadius");
             
             _unified = serializedObject.FindProperty("_unified");
-            _softness = serializedObject.FindProperty("_softness");
             _stroke = serializedObject.FindProperty("_stroke");
+            _softness = serializedObject.FindProperty("_softness");
             _sprite = serializedObject.FindProperty("m_Sprite");
+            _tint = serializedObject.FindProperty("_tint");
+            _material = serializedObject.FindProperty("m_Material");
+            
+            _outline = serializedObject.FindProperty("_outline");
+            _outlineSize = serializedObject.FindProperty("_outlineSize");
+            _outlineColor = serializedObject.FindProperty("_outlineColor");
+            _outlineSprite = serializedObject.FindProperty("_outlineSprite");
+            _outlineGroup = new AnimBool(true);
+            _outlineGroup.valueChanged.AddListener(Repaint);
+            _outlineGroup.target = _outline.boolValue;
             
             _spriteContent = EditorGUIUtility.TrTextContent("Source Image");
-
+            _tintContent = EditorGUIUtility.TrTextContent("Source Color");
+            
             _radiusTlIcon = EditorGUIUtility.Load("Packages/com.maask.UI/Editor/Icons/radius-tl.png") as Texture2D;
             _radiusTrIcon = EditorGUIUtility.Load("Packages/com.maask.UI/Editor/Icons/radius-tr.png") as Texture2D;
             _radiusBlIcon = EditorGUIUtility.Load("Packages/com.maask.UI/Editor/Icons/radius-bl.png") as Texture2D;
             _radiusBrIcon = EditorGUIUtility.Load("Packages/com.maask.UI/Editor/Icons/radius-br.png") as Texture2D;
+        }
+
+        protected override void OnDisable()
+        {
+            _outlineGroup.valueChanged.RemoveAllListeners();
+            base.OnDisable();
         }
 
         public override void OnInspectorGUI()
@@ -63,18 +90,42 @@ namespace Maask.UI.Editor
             
             RadiusGUI();
 
-            EditorGUILayout.PropertyField(_stroke);
-            EditorGUILayout.PropertyField(_softness);
-            EditorGUILayout.PropertyField(_sprite, _spriteContent);
+            _outlineGroup.target = EditorGUILayout.ToggleLeft("Enable Outline", _outlineGroup.target);
+            _outline.boolValue = _outlineGroup.target;
+
+            EditorGUILayout.BeginFadeGroup(_outlineGroup.faded);
+
+            if (_outlineGroup.faded > 0.0f)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_outlineSize, new GUIContent("Outline"));
+                EditorGUILayout.PropertyField(_outlineColor);
+                EditorGUILayout.PropertyField(_outlineSprite);
+                EditorGUILayout.Space(6.0f);
+                EditorGUI.indentLevel--;
+            }
             
-            AppearanceControlsGUI();
+            EditorGUILayout.EndFadeGroup();
+
+            GUI.enabled = !_outline.boolValue;
+            EditorGUILayout.PropertyField(_stroke);
+            GUI.enabled = true;
+            
+            EditorGUILayout.PropertyField(_softness);
+            EditorGUILayout.Space(6.0f);
+
+            EditorGUILayout.PropertyField(_sprite, _spriteContent);
+            EditorGUILayout.PropertyField(_tint, _tintContent);
+            EditorGUILayout.PropertyField(_material);
             
             serializedObject.ApplyModifiedProperties();
         }
 
         private void RadiusGUI()
         {
-            RadiusHeaderGUI();
+            _unified.boolValue = EditorGUILayout.ToggleLeft("Unified Corner Radius", _unified.boolValue);
+            
+            EditorGUILayout.Space(2.0f);
 
             var unified = _unified.boolValue || _unified.hasMultipleDifferentValues;
             
@@ -89,29 +140,6 @@ namespace Maask.UI.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(6);
-        }
-        
-        private void RadiusHeaderGUI()
-        {
-            EditorGUILayout.BeginHorizontal();
-
-            var labelStyle = new GUIStyle(EditorStyles.label) { padding = { bottom = 6 } };
-
-            EditorGUILayout.LabelField("Corner Radius", labelStyle);
-            
-            GUILayout.FlexibleSpace();
-            
-            var icon = _unified.boolValue
-                ? EditorGUIUtility.IconContent("Linked")
-                : EditorGUIUtility.IconContent("UnLinked");
-            var buttonStyle = EditorStyles.iconButton;
-            
-            if (GUILayout.Button(icon, buttonStyle, GUILayout.Width(16), GUILayout.Height(16)))
-            {
-                _unified.boolValue = !_unified.boolValue;
-            }
-            
-            EditorGUILayout.EndHorizontal();
         }
 
         private void TopLeftRadiusGUI()
