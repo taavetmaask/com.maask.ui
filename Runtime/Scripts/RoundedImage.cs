@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Maask.UI
@@ -6,30 +7,36 @@ namespace Maask.UI
     [AddComponentMenu("UI/Rounded Image", 12)]
     public class RoundedImage : Image
     {
-        private static readonly int CORNERS = Shader.PropertyToID("_Corners");
+        private static readonly int RADII = Shader.PropertyToID("_Radii");
         private static readonly int SIZE = Shader.PropertyToID("_Size");
         private static readonly int SOFTNESS = Shader.PropertyToID("_Softness");
-        private static readonly int TINT = Shader.PropertyToID("_Tint");
         private static readonly int COLOR = Shader.PropertyToID("_Color");
-        private static readonly int STROKE = Shader.PropertyToID("_Stroke");
+
+        private static readonly int FILL_COLOR = Shader.PropertyToID("_FillColor");
+        private static readonly int FILL_TEXTURE = Shader.PropertyToID("_MainTex");
+        
         private static readonly int OUTLINE = Shader.PropertyToID("_Outline");
         private static readonly int OUTLINE_COLOR = Shader.PropertyToID("_OutlineColor");
-        private static readonly int OUTLINE_TEXTURE = Shader.PropertyToID("_OutlineTex");
+        private static readonly int OUTLINE_TEXTURE = Shader.PropertyToID("_OutlineTexture");
         
+        [SerializeField] private bool _unified = true;
         [SerializeField] private float _tlRadius;
         [SerializeField] private float _trRadius;
         [SerializeField] private float _blRadius;
         [SerializeField] private float _brRadius;
 
-        [SerializeField] private Color _tint = Color.white;
-        [SerializeField] private bool _unified = true;
-        [SerializeField] private float _softness = 0.5f;
-        [SerializeField] private float _stroke;
+        [SerializeField] private bool _fillEnabled = true;
+        [FormerlySerializedAs("_tint")] 
+        [SerializeField] private Color _fillColor = Color.white;
         
-        [SerializeField] private bool _outline;
-        [SerializeField] private float _outlineSize = 4.0f;
+        [FormerlySerializedAs("_outline")] 
+        [SerializeField] private bool _outlineEnabled;
+        [FormerlySerializedAs("_outlineSize")]
+        [SerializeField] private float _outline = 4.0f;
         [SerializeField] private Color _outlineColor = Color.white;
         [SerializeField] private Sprite _outlineSprite;
+        
+        [SerializeField] private float _softness = 0.5f;
         
         private Material _defaultMaterial;
         
@@ -46,6 +53,7 @@ namespace Maask.UI
             }
         }
 
+        #region Radii Accessors
         // ReSharper disable once InconsistentNaming
         public bool unified
         {
@@ -54,6 +62,20 @@ namespace Maask.UI
             {
                 _unified = value;
                 UpdateMaterial();
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public float radius
+        {
+            get => _tlRadius;
+            set
+            {
+                _tlRadius = value;
+                _trRadius = value;
+                _blRadius = value;
+                _brRadius = value;
+                ClampAndUpdateMaterial();
             }
         }
 
@@ -100,36 +122,16 @@ namespace Maask.UI
                 ClampAndUpdateMaterial();
             }
         }
+        #endregion
 
-        // ReSharper disable once InconsistentNaming
-        public float stroke
-        {
-            get => _stroke;
-            set
-            {
-                _stroke = value;
-                ClampAndUpdateMaterial();
-            }
-        }
-
-        // ReSharper disable once InconsistentNaming
-        public float softness
-        {
-            get => _softness;
-            set
-            {
-                _softness = value;
-                ClampAndUpdateMaterial();
-            }
-        }
-
+        #region Outline Accessors
         // ReSharper disable once InconsistentNaming
         public bool outlineEnabled
         {
-            get => _outline;
+            get => _outlineEnabled;
             set
             {
-                _outline = value;
+                _outlineEnabled = value;
                 ClampAndUpdateMaterial();
             }
         }
@@ -137,10 +139,10 @@ namespace Maask.UI
         // ReSharper disable once InconsistentNaming
         public float outline
         {
-            get => _outlineSize;
+            get => _outline;
             set
             {
-                _outlineSize = value;
+                _outline = value;
                 ClampAndUpdateMaterial();
             }
         }
@@ -170,22 +172,24 @@ namespace Maask.UI
         // ReSharper disable once InconsistentNaming
         public Color tint
         {
-            get => _tint;
+            get => _fillColor;
             set
             {
-                _tint = value;
+                _fillColor = value;
                 ClampAndUpdateMaterial();
             }
         }
+        #endregion
         
-        public void SetAllRadii(float radius)
+        // ReSharper disable once InconsistentNaming
+        public float softness
         {
-            _tlRadius = radius;
-            _trRadius = radius;
-            _blRadius = radius;
-            _brRadius = radius;
-
-            ClampAndUpdateMaterial();
+            get => _softness;
+            set
+            {
+                _softness = value;
+                ClampAndUpdateMaterial();
+            }
         }
         
         private void ClampAndUpdateMaterial()
@@ -210,20 +214,22 @@ namespace Maask.UI
         {
             var rect = rectTransform.rect;
             var size = new Vector2(rect.width, rect.height);
-            
             var corners = _unified 
                 ? Vector4.one * _tlRadius 
                 : new Vector4(_blRadius, _tlRadius, _brRadius, _trRadius);
          
-            materialForRendering.SetVector(CORNERS, corners);
-            materialForRendering.SetFloat(SOFTNESS, _softness);
-            materialForRendering.SetColor(TINT, _tint);
-            materialForRendering.SetFloat(STROKE, _outline ? _outlineSize : _stroke);
-            materialForRendering.SetColor(COLOR, color);
-            materialForRendering.SetVector(SIZE, size);
-            materialForRendering.SetFloat(OUTLINE, _outline ? 1.0f : 0.0f);
+            materialForRendering.SetVector(RADII, corners);
+            
+            materialForRendering.SetColor(FILL_COLOR, _fillEnabled ? _fillColor : Color.clear);
+            materialForRendering.SetTexture(FILL_TEXTURE, sprite != null ? sprite.texture : null);
+            
+            materialForRendering.SetFloat(OUTLINE, _outlineEnabled ? _outline : 0.0f);
             materialForRendering.SetColor(OUTLINE_COLOR, _outlineColor);
             materialForRendering.SetTexture(OUTLINE_TEXTURE, _outlineSprite != null ? _outlineSprite.texture : null);
+            
+            materialForRendering.SetVector(SIZE, size);
+            materialForRendering.SetFloat(SOFTNESS, _softness);
+            materialForRendering.SetColor(COLOR, color);
         }
 
         protected override void OnValidate()
@@ -242,8 +248,7 @@ namespace Maask.UI
             var halfMax = max / 2.0f;
 
             _softness = Mathf.Clamp(_softness, 0.0f, max);
-            _stroke = Mathf.Clamp(_stroke, 0.0f, halfMax);
-            _outlineSize = Mathf.Clamp(_outlineSize, 0.0f, halfMax);
+            _outline = Mathf.Clamp(_outline, 0.0f, halfMax);
             _tlRadius = Mathf.Clamp(_tlRadius, 0.0f, halfMax);
             _trRadius = Mathf.Clamp(_trRadius, 0.0f, halfMax);
             _blRadius = Mathf.Clamp(_blRadius, 0.0f, halfMax);

@@ -850,7 +850,7 @@
     },
     "m_Path": "UI",
     "m_GraphPrecision": 1,
-    "m_PreviewMode": 2,
+    "m_PreviewMode": 1,
     "m_OutputNode": {
         "m_Id": "7e29db577800460cbaa201d79a2f4991"
     },
