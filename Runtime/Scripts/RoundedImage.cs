@@ -124,6 +124,41 @@ namespace Maask.UI
         }
         #endregion
 
+        #region Fill Accessors
+        // ReSharper disable once InconsistentNaming
+        public bool fillEnabled
+        {
+            get => _fillEnabled;
+            set
+            {
+                _fillEnabled = value;
+                UpdateMaterial();
+            }
+        }
+        
+        // ReSharper disable once InconsistentNaming
+        public Color fillColor
+        {
+            get => _fillColor;
+            set
+            {
+                _fillColor = value;
+                UpdateMaterial();
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public Sprite fillSprite
+        {
+            get => sprite;
+            set
+            {
+                sprite = value;
+                UpdateMaterial();
+            }
+        }
+        #endregion
+        
         #region Outline Accessors
         // ReSharper disable once InconsistentNaming
         public bool outlineEnabled
@@ -132,7 +167,7 @@ namespace Maask.UI
             set
             {
                 _outlineEnabled = value;
-                ClampAndUpdateMaterial();
+                UpdateMaterial();
             }
         }
 
@@ -154,7 +189,7 @@ namespace Maask.UI
             set
             {
                 _outlineColor = value;
-                ClampAndUpdateMaterial();
+                UpdateMaterial();
             }
         }
 
@@ -165,18 +200,7 @@ namespace Maask.UI
             set
             {
                 _outlineSprite = value;
-                ClampAndUpdateMaterial();
-            }
-        }
-
-        // ReSharper disable once InconsistentNaming
-        public Color tint
-        {
-            get => _fillColor;
-            set
-            {
-                _fillColor = value;
-                ClampAndUpdateMaterial();
+                UpdateMaterial();
             }
         }
         #endregion
@@ -232,12 +256,14 @@ namespace Maask.UI
             materialForRendering.SetColor(COLOR, color);
         }
 
+        #if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
             ValidateValues();
         }
-
+        #endif
+        
         private void ValidateValues()
         {
             var rect = rectTransform.rect;
