@@ -37,8 +37,7 @@ namespace Maask.UI
         [SerializeField] private Sprite _outlineSprite;
         
         [SerializeField] private float _softness = 0.5f;
-        
-        private Material _defaultMaterial;
+        [SerializeField] private Material _defaultMaterial;
         
         public override Material defaultMaterial
         {
