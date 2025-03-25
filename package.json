@@ -1,6 +1,6 @@
 {
   "name": "com.maask.ui",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "displayName": "Maask UI",
   "dependencies": {
     "com.unity.ugui": "2.0.0",

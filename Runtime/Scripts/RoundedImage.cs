@@ -37,18 +37,24 @@ namespace Maask.UI
         [SerializeField] private Sprite _outlineSprite;
         
         [SerializeField] private float _softness = 0.5f;
-        [SerializeField] private Material _defaultMaterial;
-        
-        public override Material defaultMaterial
+
+        private Material _cachedMaterial;
+
+        public override Material material
         {
             get
             {
-                if (_defaultMaterial == null)
+                if (m_Material != null)
                 {
-                    _defaultMaterial = new Material(Shader.Find("UI/Rounded Image"));
+                    return m_Material;
                 }
 
-                return _defaultMaterial;
+                if (_cachedMaterial == null)
+                {
+                    _cachedMaterial = new Material(Shader.Find("UI/Rounded Image"));
+                }
+
+                return _cachedMaterial;
             }
         }
 
@@ -74,7 +80,7 @@ namespace Maask.UI
                 _trRadius = value;
                 _blRadius = value;
                 _brRadius = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
 
@@ -85,7 +91,7 @@ namespace Maask.UI
             set
             {
                 _tlRadius = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
         
@@ -96,7 +102,7 @@ namespace Maask.UI
             set
             {
                 _trRadius = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
         
@@ -107,7 +113,7 @@ namespace Maask.UI
             set
             {
                 _blRadius = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
         
@@ -118,7 +124,7 @@ namespace Maask.UI
             set
             {
                 _brRadius = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
         #endregion
@@ -131,7 +137,7 @@ namespace Maask.UI
             set
             {
                 _fillEnabled = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
         
@@ -142,7 +148,7 @@ namespace Maask.UI
             set
             {
                 _fillColor = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
 
@@ -153,7 +159,7 @@ namespace Maask.UI
             set
             {
                 sprite = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
         #endregion
@@ -166,7 +172,7 @@ namespace Maask.UI
             set
             {
                 _outlineEnabled = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
 
@@ -177,7 +183,7 @@ namespace Maask.UI
             set
             {
                 _outline = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
 
@@ -188,7 +194,7 @@ namespace Maask.UI
             set
             {
                 _outlineColor = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
 
@@ -199,7 +205,7 @@ namespace Maask.UI
             set
             {
                 _outlineSprite = value;
-                UpdateMaterial();
+                SetMaterialDirty();
             }
         }
         #endregion
@@ -211,14 +217,14 @@ namespace Maask.UI
             set
             {
                 _softness = value;
-                ClampAndUpdateMaterial();
+                ClampAndUpdateMaterialAndSetDirty();
             }
         }
         
-        private void ClampAndUpdateMaterial()
+        private void ClampAndUpdateMaterialAndSetDirty()
         {
             ValidateValues();
-            UpdateMaterial();
+            SetMaterialDirty();
         }
         
         protected override void UpdateMaterial()
@@ -230,7 +236,7 @@ namespace Maask.UI
         protected override void OnRectTransformDimensionsChange()
         {
             base.OnRectTransformDimensionsChange();
-            UpdateRoundedMaterial();
+            SetMaterialDirty();
         }
 
         private void UpdateRoundedMaterial()
